@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
-import 'package:pencilwith/values/bottom_value.dart';
-import 'package:pencilwith/models/getxcontroller.dart';
-import 'package:pencilwith/pages/crewpage.dart';
-import 'package:pencilwith/pages/homepage.dart';
-import 'package:pencilwith/pages/profilepage.dart';
+import 'package:pencilwith/pages/mainpage.dart';
+import 'models/getxcontroller.dart';
 
 void main() => runApp(GetMaterialApp(
       //theme: ThemeData(primarySwatch: Colors.red, accentColor: Colors.yellow),
@@ -14,45 +12,112 @@ void main() => runApp(GetMaterialApp(
     ));
 
 class MyApp extends StatelessWidget {
-  List<Widget> mainPageList = [CrewPage(), HomePage(), ProfilePage()];
-
   @override
   Widget build(BuildContext context) {
-    Controller getController = Get.put(Controller());
-
-    return FutureBuilder(
-        future: checkValueZero(Stream.periodic(Duration(milliseconds: 100),
-            (x) => MediaQuery.of(context).size.width)),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return Scaffold(
-                body: SafeArea(
-                    child: Obx(
-                        () => mainPageList[getController.selectedIndex.value])),
-                // bottom navigation (디자인 변경시 수정)
-                bottomNavigationBar: Obx(() => BottomNavigationBar(
-                    currentIndex: getController.selectedIndex.value,
-                    onTap: (index) {
-                      getController.selectedIndex(index);
-                    },
-                    items: List.generate(
-                        bottomIconData.length,
-                        (index) => BottomNavigationBarItem(
-                            icon: Icon(bottomIconData[index]),
-                            label: bottomLabel[index])))));
-          } else {
-            return Scaffold(body: CircularProgressIndicator());
-          }
-        });
+    Controller c = Get.put(Controller());
+    c.width(MediaQuery.of(context).size.width);
+    return Obx(() => c.width > 0.0
+        ? Scaffold(
+            body: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(),
+                Container(
+                  color: Colors.grey[400],
+                  child: Center(
+                    child: Text(
+                      '로고',
+                      style: TextStyle(
+                          fontSize: c.width * 0.05,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  height: 200,
+                  width: 250,
+                ),
+                SizedBox(
+                  height: 100,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: Colors.blue[900],
+                    ),
+                    child: OutlineButton(
+                      onPressed: () {
+                        print('구글 로그인');
+                        _moveNextPage();
+                      },
+                      child: Text(
+                        '구글 로그인',
+                        style: TextStyle(
+                            fontSize: c.width * 0.06,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    width: c.width.value * 0.7,
+                    height: 60,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: Colors.yellow,
+                    ),
+                    child: OutlineButton(
+                      onPressed: () {
+                        print('카카오 로그인');
+                        _moveNextPage();
+                      },
+                      child: Text(
+                        '카카오 로그인',
+                        style: TextStyle(
+                            fontSize: c.width * 0.06,
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    width: c.width.value * 0.7,
+                    height: 60,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      //color: Colors.blue[900],
+                    ),
+                    child: OutlineButton(
+                      onPressed: () {
+                        print('다른 방법으로 시작하기');
+                        _moveNextPage();
+                      },
+                      child: Text(
+                        '다른 방법으로 시작하기',
+                        style: TextStyle(
+                            fontSize: c.width * 0.045,
+                            color: Colors.black54,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    width: c.width.value * 0.7,
+                    height: 60,
+                  ),
+                ),
+              ],
+            ),
+          ))
+        : Center(child: Text('Loading')));
   }
 
-  /// 디바이스마다 초기에 MediaQuery.size값을 못 가져오는 문제가 있다고 함.
-  Future<double> checkValueZero(Stream<double> sizes) async {
-    await for (double val in sizes) {
-      if (val > 0) {
-        mainWidth = val;
-        return val;
-      }
-    }
+  void _moveNextPage() {
+    Get.off(MainPage());
   }
 }
